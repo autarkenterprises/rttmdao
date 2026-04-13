@@ -2,6 +2,12 @@
 
 Foundry project implementing **`RttmPool`**: a member-governed **ERC20 treasury** with **dues**, **kick** for delinquency, **minimum-stake** rules, and **snapshot-based** strict-majority governance.
 
+## Web app (GitHub Pages)
+
+**Live site:** [https://autarkenterprises.github.io/rttmdao/](https://autarkenterprises.github.io/rttmdao/)
+
+The Vite app (State / dApp / About) is built by [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Set `VITE_POOL_SEPOLIA` / `VITE_POOL_MAINNET` and optional `VITE_BASE` (e.g. `/rttmdao/` for this URL) in GitHub Actions secrets/variables.
+
 ## Documentation
 
 - **[DAO reference](./docs/DAO.md)** — features, configuration, governance, examples (including Polymarket-style proposals), and whether votes require redeploying contracts.
