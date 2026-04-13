@@ -3,6 +3,7 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main, master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,6 +29,8 @@ jobs:
       - name: Install & build web
         working-directory: apps/web
         run: |
+          # Project Pages live at https://<org>.github.io/<repo>/ — assets must use this prefix unless overridden.
+          export VITE_BASE="${VITE_BASE:-/rttmdao/}"
           npm ci
           npm test
           npm run build
@@ -37,6 +40,10 @@ jobs:
           VITE_POOL_MAINNET: ${{ secrets.VITE_POOL_MAINNET }}
           VITE_FROM_BLOCK_SEPOLIA: ${{ vars.VITE_FROM_BLOCK_SEPOLIA }}
           VITE_FROM_BLOCK_MAINNET: ${{ vars.VITE_FROM_BLOCK_MAINNET }}
+
+      # GH Pages serves 404.html for unknown paths; without this, refresh/deep links to /rttmdao/app break.
+      - name: SPA fallback for GitHub Pages
+        run: cp apps/web/dist/index.html apps/web/dist/404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
