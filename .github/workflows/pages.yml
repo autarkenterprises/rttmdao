@@ -1,0 +1,53 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install & build web
+        working-directory: apps/web
+        run: |
+          npm ci
+          npm test
+          npm run build
+        env:
+          VITE_BASE: ${{ vars.VITE_BASE }}
+          VITE_POOL_SEPOLIA: ${{ secrets.VITE_POOL_SEPOLIA }}
+          VITE_POOL_MAINNET: ${{ secrets.VITE_POOL_MAINNET }}
+          VITE_FROM_BLOCK_SEPOLIA: ${{ vars.VITE_FROM_BLOCK_SEPOLIA }}
+          VITE_FROM_BLOCK_MAINNET: ${{ vars.VITE_FROM_BLOCK_MAINNET }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

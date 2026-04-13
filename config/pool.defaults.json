@@ -1,0 +1,16 @@
+{
+  "$schema": "./pool.defaults.schema.json",
+  "description": "Default parameters for RttmPool / RttmPoolFactory deployment (USDC 6 decimals). Override per network in pool.<chainId>.json.",
+  "poolName": "RttM Pool Share",
+  "poolSymbol": "RTTM",
+  "memberMinimum": "50000000",
+  "joinMinimum": "50000000",
+  "votingPeriodBlocks": "50400",
+  "proposalPassBps": "5000",
+  "joinApprovalBps": "5000",
+  "duesAmount": "50000000",
+  "duesPeriodSeconds": "604800",
+  "duesGraceSeconds": "86400",
+  "comment_bps": "BPS denominator 10000; pass requires yesVotes * 10000 > supply * bps (strictly greater than bps/10000 of supply). 5000 => strictly more than 50%.",
+  "comment_minimums": "50_000_000 = 50 USDC (6 decimals)."
+}
