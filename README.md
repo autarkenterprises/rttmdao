@@ -26,6 +26,10 @@ forge build
 forge test
 ```
 
+## Indexer (optional GCP VM)
+
+The [`apps/indexer`](./apps/indexer) service exposes `GET /api/snapshot` (pool params, members, proposals, events) for dashboards or future static-site integration. To run it on a free-tier **`e2-micro`** VM, see [`infra/gcp/README.md`](./infra/gcp/README.md) and run [`infra/gcp/setup-vm.sh`](./infra/gcp/setup-vm.sh) after `gcloud auth login`.
+
 ## Deploy
 
 Set `TREASURY_TOKEN` to your ERC20 (e.g. USDC). See `script/DeployRttmPool.s.sol` for env vars.
