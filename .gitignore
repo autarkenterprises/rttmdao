@@ -13,3 +13,6 @@ apps/web/dist/
 .env.*.local
 
 .DS_Store
+
+# GCP local deploy config
+infra/gcp/.env

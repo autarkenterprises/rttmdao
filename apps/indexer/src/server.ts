@@ -1,17 +1,23 @@
 import express from "express";
-import { collectFromEnv } from "./collect.js";
+import { collectFromEnv, type IndexerSnapshot } from "./collect.js";
 import { jsonSafe } from "./serialize.js";
 
 const POLL_MS = Number(process.env.POLL_MS ?? "25000");
 const PORT = Number(process.env.PORT ?? "8080");
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
 
-let cache = await collectFromEnv();
+let cache: IndexerSnapshot = {
+  chainId: Number(process.env.CHAIN_ID ?? "11155111"),
+  pool: (process.env.POOL_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
+  updatedAt: new Date().toISOString(),
+  error: "Starting first sync (HTTP binds immediately; large log ranges can take minutes)",
+};
 
 async function refresh(): Promise<void> {
   cache = await collectFromEnv();
 }
 
+void refresh();
 setInterval(() => {
   void refresh();
 }, POLL_MS);

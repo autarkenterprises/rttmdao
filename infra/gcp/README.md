@@ -20,6 +20,8 @@ gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 ```
 
+Optional: copy `infra/gcp/.env.example` to `infra/gcp/.env` and set `POOL_ADDRESS` / `RPC_URL`. The setup script sources `.env` automatically (it is gitignored).
+
 Enable billing for the project in Cloud Console if prompted.
 
 ## Create the VM
