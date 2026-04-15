@@ -21,12 +21,12 @@ contract DeployRttmPool is Script {
             symbol_: "RTTM",
             treasuryToken_: treasury,
             genesisAuthority_: genesisAuthority,
-            memberMinimum_: vm.envOr("MEMBER_MIN", uint256(50 * 1e6)),
-            joinMinimum_: vm.envOr("JOIN_MIN", uint256(50 * 1e6)),
+            memberMinimum_: vm.envOr("MEMBER_MIN", uint256(10 * 1e6)),
+            joinMinimum_: vm.envOr("JOIN_MIN", uint256(10 * 1e6)),
             votingPeriodBlocks_: vm.envOr("VOTING_PERIOD_BLOCKS", uint256(50400)),
             proposalPassBps_: vm.envOr("PROPOSAL_PASS_BPS", uint256(5000)),
             joinApprovalBps_: vm.envOr("JOIN_APPROVAL_BPS", uint256(5000)),
-            duesAmount_: vm.envOr("DUES_AMOUNT", uint256(50 * 1e6)),
+            duesAmount_: vm.envOr("DUES_AMOUNT", uint256(10 * 1e6)),
             duesPeriodSeconds_: vm.envOr("DUES_PERIOD_SECONDS", uint256(7 days)),
             duesGraceSeconds_: vm.envOr("DUES_GRACE_SECONDS", uint256(1 days))
         });
