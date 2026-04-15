@@ -32,10 +32,17 @@ The [`apps/indexer`](./apps/indexer) service exposes `GET /api/snapshot` (pool p
 
 ## Deploy
 
-Set `TREASURY_TOKEN` to your ERC20 (e.g. USDC). See `script/DeployRttmPool.s.sol` for env vars.
+**Sepolia defaults (Ethereum testnet):**
+
+- **Treasury token:** Circle **USDC** on Sepolia is `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238` ([Circle USDC addresses](https://developers.circle.com/stablecoins/usdc-contract-addresses)). The deploy script uses this if **`TREASURY_TOKEN`** is unset.
+- **RPC:** Public Sepolia endpoint **`https://rpc.sepolia.org`** is the default in `config/pool.defaults.json` and in the web app when `VITE_RPC_SEPOLIA` is unset.
+
+Set `TREASURY_TOKEN` only if you want a different ERC20. See `script/DeployRttmPool.s.sol` for other env vars. **Never commit private keys.**
 
 ```shell
-forge script script/DeployRttmPool.s.sol:DeployRttmPool --rpc-url <RPC_URL> --broadcast
+export SEPOLIA_RPC_URL=https://rpc.sepolia.org
+forge script script/DeployRttmPool.s.sol:DeployRttmPool \
+  --rpc-url "$SEPOLIA_RPC_URL" --broadcast
 ```
 
 ## Foundry

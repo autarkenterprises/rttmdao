@@ -6,9 +6,12 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {RttmPool} from "../src/RttmPool.sol";
 
 contract DeployRttmPool is Script {
+    /// @dev Circle USDC on Ethereum Sepolia (testnet). https://developers.circle.com/stablecoins/usdc-contract-addresses
+    address internal constant DEFAULT_SEPOLIA_USDC = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;
+
     function run() external {
         vm.startBroadcast();
-        IERC20 treasury = IERC20(vm.envAddress("TREASURY_TOKEN"));
+        IERC20 treasury = IERC20(vm.envOr("TREASURY_TOKEN", DEFAULT_SEPOLIA_USDC));
         address genesisAuthority = vm.envOr("GENESIS_AUTHORITY", address(0));
         if (genesisAuthority == address(0)) {
             genesisAuthority = msg.sender;

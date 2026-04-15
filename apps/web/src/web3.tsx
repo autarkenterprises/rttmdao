@@ -29,8 +29,10 @@ const CHAINS: Record<number, Chain> = {
 };
 
 function transportFor(chainId: number) {
-  if (chainId === 11155111) return http(import.meta.env.VITE_RPC_SEPOLIA);
-  return http(import.meta.env.VITE_RPC_MAINNET);
+  if (chainId === 11155111) {
+    return http(import.meta.env.VITE_RPC_SEPOLIA || "https://rpc.sepolia.org");
+  }
+  return http(import.meta.env.VITE_RPC_MAINNET || "https://eth.llamarpc.com");
 }
 
 type Web3Ctx = {
