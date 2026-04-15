@@ -42,8 +42,34 @@ Set `TREASURY_TOKEN` only if you want a different ERC20. See `script/DeployRttmP
 ```shell
 export SEPOLIA_RPC_URL=https://rpc.sepolia.org
 forge script script/DeployRttmPool.s.sol:DeployRttmPool \
-  --rpc-url "$SEPOLIA_RPC_URL" --broadcast
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --broadcast \
+  --private-key "$PRIVATE_KEY"
 ```
+
+After broadcast, copy the new **`RttmPool`** address from `broadcast/*/run-latest.json` (or the explorer). Point the web app at it:
+
+- Local: set **`VITE_POOL_SEPOLIA=0x…`** in `apps/web/.env.local`.
+- GitHub Pages: set repository secret **`VITE_POOL_SEPOLIA`** (and redeploy the Pages workflow).
+
+### Complete genesis (`completeGenesis`)
+
+`genesisAuthority` is the **deployer** unless you set **`GENESIS_AUTHORITY`**. Each genesis member must **`approve`** the **pool** on the **treasury token** for their deposit **before** this call.
+
+Example (two members, **10 USDC** each = `10000000` base units × 2):
+
+```shell
+export POOL=0xYourRttmPool
+export SEPOLIA_RPC_URL=https://rpc.sepolia.org
+
+cast send "$POOL" "completeGenesis(address[],uint256[])" \
+  "[0xMemberOne,0xMemberTwo]" \
+  "[10000000,10000000]" \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --private-key "$PRIVATE_KEY"
+```
+
+Use the **`GENESIS_AUTHORITY`** private key (the address shown as `genesisAuthority` on the deployed pool). If that is not the same as the deployer, set **`PRIVATE_KEY`** accordingly.
 
 ## Foundry
 

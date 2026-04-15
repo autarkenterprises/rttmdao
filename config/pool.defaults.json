@@ -12,8 +12,9 @@
   "proposalPassBps": "5000",
   "joinApprovalBps": "5000",
   "duesAmount": "10000000",
-  "duesPeriodSeconds": "604800",
-  "duesGraceSeconds": "86400",
+  "duesPeriodSeconds": "2592000",
+  "duesGraceSeconds": "2592000",
+  "comment_dues_timing": "2592000 s = 30 days; monthly period and one-month kick grace after duesPaidUntil.",
   "comment_bps": "BPS denominator 10000; pass requires yesVotes * 10000 > supply * bps (strictly greater than bps/10000 of supply). 5000 => strictly more than 50%.",
   "comment_minimums": "10_000_000 = 10 USDC (6 decimals) for memberMinimum, joinMinimum, and per-period duesAmount."
 }

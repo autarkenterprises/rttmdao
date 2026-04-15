@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { erc20Abi, rttmPoolAbi } from "../abi";
+import { formatBps, formatDurationSeconds } from "../lib/formatOnChain";
 import { usePoolDeployment } from "../hooks/usePoolAddress";
 import { useWeb3 } from "../web3";
 
@@ -52,37 +53,18 @@ export function DaoStatePage() {
     duesGraceSeconds: bigint;
   } | null>(null);
   const [memberRows, setMemberRows] = useState<MemberRow[]>([]);
+  const [shareName, setShareName] = useState<string>("");
+  const [shareSymbol, setShareSymbol] = useState<string>("");
+  const [totalSupply, setTotalSupply] = useState<bigint | undefined>();
 
   const refreshReads = useCallback(async () => {
     if (!pool) return;
-    const t = (await publicClient.readContract({
-      address: pool,
-      abi: rttmPoolAbi,
-      functionName: "treasuryToken",
-    })) as `0x${string}`;
-    setTreasury(t);
-    if (t !== "0x0000000000000000000000000000000000000000") {
-      const d = await publicClient.readContract({
-        address: t,
-        abi: erc20Abi,
-        functionName: "decimals",
-      });
-      setDecimals(Number(d));
-      const s = await publicClient.readContract({
-        address: t,
-        abi: erc20Abi,
-        functionName: "symbol",
-      });
-      setSym(s);
-    }
-    const pc = await publicClient.readContract({
-      address: pool,
-      abi: rttmPoolAbi,
-      functionName: "proposalCount",
-    });
-    setProposalCount(pc as bigint);
-
     const [
+      t,
+      nm,
+      symShare,
+      pc,
+      ts,
       genesisAuthority,
       genesisCompleted,
       memberMinimum,
@@ -94,6 +76,31 @@ export function DaoStatePage() {
       duesPeriodSeconds,
       duesGraceSeconds,
     ] = await Promise.all([
+      publicClient.readContract({
+        address: pool,
+        abi: rttmPoolAbi,
+        functionName: "treasuryToken",
+      }),
+      publicClient.readContract({
+        address: pool,
+        abi: rttmPoolAbi,
+        functionName: "name",
+      }),
+      publicClient.readContract({
+        address: pool,
+        abi: rttmPoolAbi,
+        functionName: "symbol",
+      }),
+      publicClient.readContract({
+        address: pool,
+        abi: rttmPoolAbi,
+        functionName: "proposalCount",
+      }),
+      publicClient.readContract({
+        address: pool,
+        abi: rttmPoolAbi,
+        functionName: "totalSupply",
+      }),
       publicClient.readContract({
         address: pool,
         abi: rttmPoolAbi,
@@ -145,6 +152,30 @@ export function DaoStatePage() {
         functionName: "duesGraceSeconds",
       }),
     ]);
+
+    const treasuryAddr = t as `0x${string}`;
+    setTreasury(treasuryAddr);
+    setShareName(nm as string);
+    setShareSymbol(symShare as string);
+    setProposalCount(pc as bigint);
+    setTotalSupply(ts as bigint);
+
+    if (treasuryAddr !== "0x0000000000000000000000000000000000000000") {
+      const [d, s] = await Promise.all([
+        publicClient.readContract({
+          address: treasuryAddr,
+          abi: erc20Abi,
+          functionName: "decimals",
+        }),
+        publicClient.readContract({
+          address: treasuryAddr,
+          abi: erc20Abi,
+          functionName: "symbol",
+        }),
+      ]);
+      setDecimals(Number(d));
+      setSym(s);
+    }
 
     setPoolParams({
       genesisAuthority: genesisAuthority as `0x${string}`,
@@ -275,50 +306,116 @@ export function DaoStatePage() {
       <p className="muted">
         Live view from the public RPC (last ~200 events). Set <code>VITE_FROM_BLOCK_*</code> for faster log queries.
       </p>
-      {pool && (
-        <div className="card">
-          <h2>Pool</h2>
-          <p>
-            <code>{pool}</code>
+      {pool && !poolParams && !err && <p className="muted">Loading on-chain parameters…</p>}
+      {pool && poolParams && (
+        <div className="card info-box">
+          <h2>Contract parameters (live)</h2>
+          <p className="muted">
+            Read directly from the pool contract on the selected network. Refresh updates all values.
           </p>
-          <p>
-            Treasury: <code>{treasury}</code> {sym ? `(${sym})` : ""}
-          </p>
-          <p>Proposals (count): {proposalCount?.toString() ?? "…"}</p>
+          <table className="params-table">
+            <tbody>
+              <tr>
+                <th scope="row">Pool (RttmPool)</th>
+                <td>
+                  <code>{pool}</code>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Share token (name / symbol)</th>
+                <td>
+                  {shareName} / {shareSymbol}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Total supply (shares)</th>
+                <td>{totalSupply?.toString() ?? "…"}</td>
+              </tr>
+              <tr>
+                <th scope="row">Treasury ERC20</th>
+                <td>
+                  <code>{treasury}</code>
+                  {sym ? ` (${sym}, ${decimals} decimals)` : ""}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Genesis authority</th>
+                <td>
+                  <code>{poolParams.genesisAuthority}</code>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Genesis completed</th>
+                <td>{poolParams.genesisCompleted ? "yes" : "no"}</td>
+              </tr>
+              <tr>
+                <th scope="row">memberMinimum</th>
+                <td>
+                  {sym
+                    ? `${formatUnits(poolParams.memberMinimum, decimals)} ${sym} (${poolParams.memberMinimum.toString()} base units)`
+                    : poolParams.memberMinimum.toString()}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">joinMinimum</th>
+                <td>
+                  {sym
+                    ? `${formatUnits(poolParams.joinMinimum, decimals)} ${sym} (${poolParams.joinMinimum.toString()} base units)`
+                    : poolParams.joinMinimum.toString()}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">votingPeriodBlocks</th>
+                <td>{poolParams.votingPeriodBlocks.toString()}</td>
+              </tr>
+              <tr>
+                <th scope="row">proposalPassBps / joinApprovalBps</th>
+                <td>
+                  {formatBps(poolParams.proposalPassBps)} / {formatBps(poolParams.joinApprovalBps)} (
+                  {poolParams.proposalPassBps.toString()} / {poolParams.joinApprovalBps.toString()} bps — pass if
+                  yes×10000 &gt; supply×bps)
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">duesAmount (per period)</th>
+                <td>
+                  {sym
+                    ? `${formatUnits(poolParams.duesAmount, decimals)} ${sym} (${poolParams.duesAmount.toString()} base units)`
+                    : poolParams.duesAmount.toString()}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">duesPeriodSeconds</th>
+                <td>{formatDurationSeconds(poolParams.duesPeriodSeconds)}</td>
+              </tr>
+              <tr>
+                <th scope="row">duesGraceSeconds</th>
+                <td>{formatDurationSeconds(poolParams.duesGraceSeconds)}</td>
+              </tr>
+              <tr>
+                <th scope="row">Dues enforcement</th>
+                <td>
+                  {poolParams.duesAmount > 0n && poolParams.duesPeriodSeconds > 0n
+                    ? "enabled (kick possible after grace when delinquent)"
+                    : "disabled (dues amount or period is zero)"}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">proposalCount</th>
+                <td>{proposalCount?.toString() ?? "…"}</td>
+              </tr>
+            </tbody>
+          </table>
           {account && (
-            <p>
-              Your shares: {myShares?.toString() ?? "…"} — treasury claim (~):{" "}
-              {myAssets !== undefined ? formatUnits(myAssets, decimals) : "…"} {sym}
+            <p className="muted" style={{ marginTop: "1rem" }}>
+              Connected: your shares {myShares?.toString() ?? "…"} — treasury claim (~){" "}
+              {myAssets !== undefined ? `${formatUnits(myAssets, decimals)} ${sym}` : "…"}
             </p>
           )}
           <button type="button" disabled={loading} onClick={() => void refresh()}>
             {loading ? "Refreshing…" : "Refresh now"}
           </button>
           {err && <p className="err">{err}</p>}
-        </div>
-      )}
-      {pool && poolParams && (
-        <div className="card">
-          <h2>Parameters (on-chain)</h2>
-          <p>
-            Genesis authority: <code>{poolParams.genesisAuthority}</code> — completed:{" "}
-            {poolParams.genesisCompleted ? "yes" : "no"}
-          </p>
-          <ul>
-            <li>
-              memberMinimum / joinMinimum (base units): {poolParams.memberMinimum.toString()} /{" "}
-              {poolParams.joinMinimum.toString()}
-            </li>
-            <li>votingPeriodBlocks: {poolParams.votingPeriodBlocks.toString()}</li>
-            <li>
-              proposalPassBps / joinApprovalBps: {poolParams.proposalPassBps.toString()} /{" "}
-              {poolParams.joinApprovalBps.toString()} (pass if yes*10000 &gt; supply*bps)
-            </li>
-            <li>
-              dues: amount {poolParams.duesAmount.toString()}, periodSeconds {poolParams.duesPeriodSeconds.toString()},
-              graceSeconds {poolParams.duesGraceSeconds.toString()}
-            </li>
-          </ul>
         </div>
       )}
       {pool && (

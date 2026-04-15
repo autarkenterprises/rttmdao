@@ -123,7 +123,7 @@ These live in storage and are updated **only** when **`msg.sender == address(thi
 
 ## Default configuration
 
-See **`config/pool.defaults.json`**: USDC-6-oriented defaults (e.g. **10 USDC** minimums and per-period dues), **`proposalPassBps`** and **`joinApprovalBps`** at **`5000`** (strictly greater than 50%), and documented BPS semantics.
+See **`config/pool.defaults.json`**: USDC-6-oriented defaults (e.g. **10 USDC** minimums and per-period dues), **30-day** dues period and **30-day** kick grace (both in seconds), **`proposalPassBps`** and **`joinApprovalBps`** at **`5000`** (strictly greater than 50%), and documented BPS semantics.
 
 ---
 

@@ -115,3 +115,25 @@ td {
   padding: 0.35rem 0.5rem;
   border-bottom: 1px solid #2a2f38;
 }
+
+.info-box {
+  border-color: #3d4a60;
+  background: linear-gradient(180deg, #161b24 0%, #141820 100%);
+}
+
+.params-table {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.params-table th[scope="row"] {
+  width: 38%;
+  max-width: 14rem;
+  color: #a8aeb8;
+  font-weight: 500;
+  vertical-align: top;
+}
+
+.params-table td {
+  word-break: break-word;
+}

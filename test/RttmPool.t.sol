@@ -352,7 +352,7 @@ contract RttmPoolTest is Test {
     }
 
     function test_example_encodeCall_setDuesParams() public pure {
-        bytes memory data = abi.encodeCall(RttmPool.setDuesParams, (10 * 1e6, uint256(7 days), uint256(1 days)));
+        bytes memory data = abi.encodeCall(RttmPool.setDuesParams, (10 * 1e6, uint256(30 days), uint256(30 days)));
         assertGt(data.length, 4);
     }
 

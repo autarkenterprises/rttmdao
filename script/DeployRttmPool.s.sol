@@ -27,8 +27,8 @@ contract DeployRttmPool is Script {
             proposalPassBps_: vm.envOr("PROPOSAL_PASS_BPS", uint256(5000)),
             joinApprovalBps_: vm.envOr("JOIN_APPROVAL_BPS", uint256(5000)),
             duesAmount_: vm.envOr("DUES_AMOUNT", uint256(10 * 1e6)),
-            duesPeriodSeconds_: vm.envOr("DUES_PERIOD_SECONDS", uint256(7 days)),
-            duesGraceSeconds_: vm.envOr("DUES_GRACE_SECONDS", uint256(1 days))
+            duesPeriodSeconds_: vm.envOr("DUES_PERIOD_SECONDS", uint256(30 days)),
+            duesGraceSeconds_: vm.envOr("DUES_GRACE_SECONDS", uint256(30 days))
         });
         vm.stopBroadcast();
     }
